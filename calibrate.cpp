@@ -10,6 +10,21 @@ int curmaxout=(int)(default_maxout*100);
 int maxheight=-1;
 int maxwidth=-1;
 
+void setcurmin(int _curmin, void*)
+{
+    // better set twice than to create endless loop (createTrackbar set too curminout)
+    curminout = _curmin;
+    if (max(curmaxout, curminout) != curmaxout)
+        setTrackbarPos("maxouttrack", "calibrateCamera", max(curmaxout, curminout));
+}
+void setcurmax(int _curmax, void*)
+{
+    // better set twice than to create endless loop (createTrackbar set too curmaxout)
+    curmaxout = _curmax;
+    if (min(curminout, curmaxout) != curminout)
+        setTrackbarPos("minouttrack", "calibrateCamera", min(curminout, curmaxout));
+}
+
 void onMouse(int event, int x, int y, int, void* )
 {
     if(event == EVENT_LBUTTONDOWN)
@@ -39,6 +54,7 @@ int calibrate(int source)
     VideoCapture vid = VideoCapture();
     Mat gray1;
     Mat frame;
+    p_percent result;
     if (vid.open(source)==false)
     {
         cerr << "Opening source failed: " << source << endl;
@@ -51,14 +67,20 @@ int calibrate(int source)
     roi.height = frame.rows;
     namedWindow("calibrateCamera");
     setMouseCallback("calibrateCamera", onMouse);
-    createTrackbar("minouttrack", "calibrateCamera", &curminout, max(200, (int)(default_maxout*100)));
-    createTrackbar("maxouttrack", "calibrateCamera", &curmaxout, max(200, (int)(default_maxout*100)));
+    createTrackbar("minouttrack", "calibrateCamera", &curminout, max(200, (int)(default_maxout*100)),setcurmin);
+    createTrackbar("maxouttrack", "calibrateCamera", &curmaxout, max(200, (int)(default_maxout*100)),setcurmax);
 
     while(true)
     {
         vid.read(frame);
         cvtColor(frame, gray1, COLOR_BGR2GRAY);
+        result = parsepercentimg(gray1(roi),curminout/100.0,curmaxout/100.0);
         rectangle(gray1,roi, Scalar(255),2);
+        stringstream convs;
+        convs << "Current strength: ";
+        convs << result.intpercent;
+        convs << "%";
+        putText(gray1, convs.str(), Point(10,60),FONT_HERSHEY_SIMPLEX, 1,Scalar(255));
         imshow("calibrateCamera",gray1);
         char key = waitKey(50);
         switch(key)
@@ -70,7 +92,7 @@ int calibrate(int source)
                 return 0;
             case 's':
                 cleanup();
-                return flamenparser(source, roi.x, roi.y, roi.width, roi.height, curminout/100.0, curmaxout/100.0);
+                return flamenparser(source, roi, curminout/100.0, curmaxout/100.0);
         }
     }
     return 0;

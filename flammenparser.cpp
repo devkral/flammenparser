@@ -2,13 +2,20 @@
 #include "flammenparser.h"
 
 
+p_percent parsepercentimg(Mat grayinp, double minout, double maxout)
+{
+    p_percent p;
+    double percent = min(sum(grayinp)[0]/(grayinp.rows*grayinp.cols*256), 1.0);
+    p.floatpercent = minout+(maxout-minout)*percent;
+    p.intpercent = (int)(p.floatpercent*100);
+    return p;
+}
 
-int flamenparser(int source, int x, int y, int w, int h, double minout, double maxout)
+int flamenparser(int source, Rect roi, double minout, double maxout)
 {
     VideoCapture vid = VideoCapture();
-    Mat gray1, gray2;
+    Mat gray1;
     Mat frame;
-    Rect roi = Rect(x,y,w,h);
     bool initsize = true;
     if (vid.open(source)==false)
     {
@@ -41,17 +48,13 @@ int flamenparser(int source, int x, int y, int w, int h, double minout, double m
             }
             initsize=false;
         }
-        gray2 = gray1(roi);
-        // clamp to 1.0 (100%)
-        double percent = min(sum(gray2)[0]/(gray2.rows*gray2.cols*256), 1.0);
-#ifdef USE_INT_PERCENT
-        int ipercent = (int)((minout+(maxout-minout)*percent)*100);
-#else
-        double ipercent = minout+(maxout-minout)*percent;
-#endif
-        cout << ipercent << endl;
+        p_percent calcp = parsepercentimg(gray1(roi), minout, maxout);
         stringstream convs;
-        convs << ipercent;
+#ifdef USE_INT_PERCENT
+        convs << calcp.intpercent;
+#else
+        convs << calcp.floatpercent;
+#endif
         string calls = call_percent_pre + convs.str() + call_percent_post;
         system(calls.c_str());
     }

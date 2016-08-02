@@ -16,7 +16,14 @@ const double default_maxout=1;
 const string call_percent_pre = "/usr/bin/pactl set-sink-volume @DEFAULT_SINK@ ";
 const string call_percent_post = "%";
 
+struct p_percent{
+    double floatpercent;
+    int intpercent;
+};
 
-int flamenparser(int source, int x, int y, int w, int h, double minout, double maxout);
+
+p_percent parsepercentimg(Mat grayinp, double minout, double maxout);
+
+int flamenparser(int source, Rect roi, double minout, double maxout);
 
 #endif
