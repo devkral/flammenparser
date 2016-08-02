@@ -44,8 +44,9 @@ void onMouse(int event, int x, int y, int, void* )
 
 }
 
-void cleanup()
+void cleanup(VideoCapture &vid)
 {
+    vid.release();
     destroyWindow("calibrateCamera");
 }
 
@@ -87,11 +88,11 @@ int calibrate(int source)
         {
             case 'q':
             case 'c':
-                cleanup();
-                cout << roi.x << " " << roi.y << " " << roi.width << " " << roi.height << " " << curminout/100.0 << " " << curmaxout/100.0 << endl;
+                cleanup(vid);
+                cout << source << " " << roi.x << " " << roi.y << " " << roi.width << " " << roi.height << " " << curminout/100.0 << " " << curmaxout/100.0 << endl;
                 return 0;
             case 's':
-                cleanup();
+                cleanup(vid);
                 return flamenparser(source, roi, curminout/100.0, curmaxout/100.0);
         }
     }

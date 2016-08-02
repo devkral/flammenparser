@@ -1,8 +1,8 @@
 #ifndef FLAMENCALIBRATE_H
 #define FLAMENCALIBRATE_H
 
-#include <iostream>
 #include <opencv2/opencv.hpp>
+#include <iostream>
 
 using namespace std;
 using namespace cv;

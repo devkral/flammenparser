@@ -1,10 +1,10 @@
 
 #ifndef FLAMENPARSER_H
 #define FLAMENPARSER_H
+#include <opencv2/opencv.hpp>
 #include <iostream>
 #include <cstdio>
 #include <string>
-#include <opencv2/opencv.hpp>
 
 using namespace std;
 using namespace cv;

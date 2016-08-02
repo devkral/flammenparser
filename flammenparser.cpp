@@ -57,6 +57,8 @@ int flamenparser(int source, Rect roi, double minout, double maxout)
 #endif
         string calls = call_percent_pre + convs.str() + call_percent_post;
         system(calls.c_str());
+        // for closing window
+        waitKey(10);
     }
     return 0;
 }
